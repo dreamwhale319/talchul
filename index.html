@@ -1,0 +1,1040 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>시간관리국: 23시 59분의 문</title>
+    <style>
+      :root {
+        color: #edf8ff;
+        background: #06080d;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        line-height: 1.5;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        background:
+          linear-gradient(135deg, rgba(18, 86, 105, 0.22), transparent 34%),
+          linear-gradient(315deg, rgba(150, 59, 90, 0.18), transparent 42%),
+          #06080d;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      button:disabled,
+      input:disabled,
+      select:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border: 1px solid rgba(151, 227, 255, 0.18);
+        border-radius: 8px;
+      }
+
+      th,
+      td {
+        padding: 0.62rem 0.72rem;
+        border-bottom: 1px solid rgba(151, 227, 255, 0.12);
+        text-align: left;
+      }
+
+      th {
+        width: 42%;
+        color: #9ee8ff;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1,
+      h2,
+      h3 {
+        letter-spacing: 0;
+      }
+
+      .startScreen,
+      .endScreen {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
+      }
+
+      .startHero,
+      .endPanel,
+      .roomPanel,
+      .inventoryPanel,
+      .puzzlePanel {
+        border: 1px solid rgba(151, 227, 255, 0.24);
+        border-radius: 8px;
+        background:
+          linear-gradient(180deg, rgba(20, 33, 46, 0.94), rgba(8, 12, 19, 0.96)),
+          repeating-linear-gradient(90deg, rgba(91, 222, 255, 0.05) 0 1px, transparent 1px 44px);
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.26);
+      }
+
+      .startHero,
+      .endPanel {
+        width: min(720px, 100%);
+        padding: clamp(1.5rem, 5vw, 4rem);
+      }
+
+      .startHero h1,
+      .endPanel h1 {
+        max-width: 11ch;
+        margin-bottom: 1rem;
+        font-size: clamp(2.1rem, 6vw, 4.8rem);
+        line-height: 1.03;
+      }
+
+      .storyText {
+        max-width: 54rem;
+        color: #bfd0d8;
+        font-size: 1.08rem;
+      }
+
+      .eyebrow {
+        margin-bottom: 0.5rem;
+        color: #7ee6ff;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .primaryButton,
+      .ghostButton,
+      .answerBox button,
+      .hintBox button {
+        min-height: 44px;
+        border: 1px solid rgba(151, 227, 255, 0.36);
+        border-radius: 8px;
+        color: #041116;
+        background: #7ee6ff;
+        font-weight: 800;
+      }
+
+      .primaryButton {
+        margin-top: 1.3rem;
+        padding: 0.85rem 1.35rem;
+      }
+
+      .ghostButton {
+        color: #dff8ff;
+        background: rgba(126, 230, 255, 0.08);
+      }
+
+      .gameShell {
+        min-height: 100vh;
+        padding: clamp(0.9rem, 2vw, 1.5rem);
+      }
+
+      .topBar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 1rem;
+        align-items: center;
+        padding: 1rem;
+        border: 1px solid rgba(151, 227, 255, 0.24);
+        border-radius: 8px;
+        background: rgba(8, 12, 19, 0.88);
+        backdrop-filter: blur(16px);
+      }
+
+      .topBar h1 {
+        margin-bottom: 0;
+        font-size: clamp(1.1rem, 2vw, 1.7rem);
+      }
+
+      .timer {
+        display: grid;
+        min-width: 152px;
+        padding: 0.55rem 0.85rem;
+        border: 1px solid rgba(255, 208, 111, 0.38);
+        border-radius: 8px;
+        color: #ffd06f;
+        background: rgba(255, 208, 111, 0.08);
+        text-align: right;
+      }
+
+      .timerLabel {
+        color: #b9a36c;
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+      }
+
+      .timer strong {
+        font-family: Consolas, monospace;
+        font-size: 1.5rem;
+      }
+
+      .messageBar {
+        margin: 1rem 0;
+        padding: 0.85rem 1rem;
+        border-left: 4px solid #7ee6ff;
+        border-radius: 8px;
+        background: rgba(126, 230, 255, 0.1);
+      }
+
+      .gameGrid {
+        display: grid;
+        grid-template-columns: minmax(280px, 1.2fr) minmax(320px, 0.9fr);
+        grid-template-areas:
+          "room puzzle"
+          "inventory puzzle";
+        gap: 1rem;
+        align-items: start;
+      }
+
+      .roomPanel {
+        grid-area: room;
+        padding: 1rem;
+      }
+
+      .inventoryPanel {
+        grid-area: inventory;
+        padding: 1rem;
+      }
+
+      .puzzlePanel {
+        grid-area: puzzle;
+        position: sticky;
+        top: 118px;
+        padding: 1rem;
+      }
+
+      .panelHeader {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+      }
+
+      .panelHeader h2,
+      .panelHeader h3 {
+        margin-bottom: 0;
+        font-size: 1.05rem;
+      }
+
+      .panelHeader span {
+        color: #8ba4af;
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .objectGrid,
+      .inventoryGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(152px, 1fr));
+        gap: 0.75rem;
+      }
+
+      .objectCard,
+      .inventoryItem {
+        display: grid;
+        min-height: 92px;
+        padding: 0.8rem;
+        border: 1px solid rgba(151, 227, 255, 0.18);
+        border-radius: 8px;
+        color: #e8f8ff;
+        background: rgba(19, 28, 40, 0.88);
+        text-align: left;
+      }
+
+      .objectCard:hover,
+      .inventoryItem:hover,
+      .objectCard.active,
+      .inventoryItem.active {
+        border-color: #7ee6ff;
+        background: rgba(33, 67, 82, 0.72);
+      }
+
+      .objectName {
+        font-weight: 850;
+      }
+
+      .objectSubtitle,
+      .muted,
+      .itemDescription {
+        color: #9eb7c1;
+      }
+
+      .statusPill {
+        justify-self: start;
+        align-self: end;
+        margin-top: 0.6rem;
+        padding: 0.14rem 0.45rem;
+        border: 1px solid rgba(255, 208, 111, 0.34);
+        border-radius: 999px;
+        color: #ffd06f;
+        font-size: 0.72rem;
+        font-weight: 800;
+      }
+
+      .inventoryItem {
+        min-height: 52px;
+        align-items: center;
+      }
+
+      .detailsBox,
+      .selectedItemBox,
+      .answerBox,
+      .hintBox {
+        margin-bottom: 0.9rem;
+        padding: 0.9rem;
+        border: 1px solid rgba(151, 227, 255, 0.14);
+        border-radius: 8px;
+        background: rgba(6, 10, 16, 0.46);
+      }
+
+      .answerBox {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .inputRow,
+      .slotRow {
+        display: grid;
+        gap: 0.6rem;
+      }
+
+      .inputRow {
+        grid-template-columns: minmax(0, 1fr) 92px;
+      }
+
+      .slotRow {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      input,
+      select {
+        width: 100%;
+        min-height: 44px;
+        border: 1px solid rgba(151, 227, 255, 0.26);
+        border-radius: 8px;
+        color: #f3fcff;
+        background: rgba(2, 7, 12, 0.92);
+      }
+
+      input {
+        padding: 0 0.75rem;
+        font-family: Consolas, monospace;
+        letter-spacing: 0.08em;
+      }
+
+      select {
+        padding: 0 0.55rem;
+      }
+
+      .signalPattern,
+      .cipherText {
+        padding: 0.75rem;
+        border: 1px solid rgba(255, 208, 111, 0.24);
+        border-radius: 8px;
+        color: #ffd06f;
+        background: rgba(255, 208, 111, 0.08);
+        font-family: Consolas, monospace;
+      }
+
+      .signalPattern {
+        display: grid;
+        gap: 0.45rem;
+      }
+
+      .signalPattern b {
+        color: #ef7697;
+      }
+
+      .hintList,
+      .clueList {
+        display: grid;
+        gap: 0.35rem;
+        padding-left: 1.2rem;
+        color: #c5d7df;
+      }
+
+      .successText {
+        color: #69f0a4;
+      }
+
+      @media (max-width: 920px) {
+        .topBar,
+        .gameGrid {
+          grid-template-columns: 1fr;
+        }
+
+        .topBar,
+        .puzzlePanel {
+          position: static;
+        }
+
+        .timer {
+          text-align: left;
+        }
+
+        .gameGrid {
+          grid-template-areas:
+            "room"
+            "puzzle"
+            "inventory";
+        }
+      }
+
+      @media (max-width: 560px) {
+        .gameShell {
+          padding: 0.65rem;
+        }
+
+        .objectGrid,
+        .inventoryGrid,
+        .slotRow,
+        .inputRow {
+          grid-template-columns: 1fr;
+        }
+
+        .startHero h1,
+        .endPanel h1 {
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script>
+      const STORAGE_KEY = "time-bureau-escape-state-single-file";
+      const INITIAL_SECONDS = 60 * 60;
+
+      const ITEMS = {
+        uvFlashlight: ["UV 손전등", "일반 조명으로는 보이지 않는 별자리 지도 위 숫자를 드러낸다."],
+        cassetteTape: ["카세트테이프", "현재 기록이 소리 패턴으로 녹음된 테이프."],
+        cipherWheel: ["암호 해독 휠", "미래 문서를 현재로 되돌리는 데 필요한 이동 규칙이 새겨져 있다."],
+        cipherText: ["암호문", "ORFN ILYH VHYHQ WZR. 세 칸 되돌리면 문장이 열린다."],
+        constellationManual: ["별자리 지도 설명서", "긴 꼬리, 검은 날개, 노래하는 현, 항상 북쪽의 의미를 설명한다."],
+        pastToken: ["과거 토큰", "앞면: 과거 기록 동기화 완료. 뒷면: 24"],
+        presentToken: ["현재 토큰", "앞면: 현재 기록 동기화 완료. 뒷면: 07"],
+        futureToken: ["미래 토큰", "앞면: 미래 기록 동기화 완료. 뒷면: 19"],
+        researcherLog: ["연구원 출입 기록", "비상 장비 캐비닛은 마지막 정상 출입 순서로 잠겨 있다."],
+        mirrors: ["반사 거울 3개", "빛 반사 장치의 세 슬롯에 빛의 진행 방향을 지정할 수 있다."],
+        lightDevice: ["소형 빛 장치", "동기화된 순서로 반사시키면 최종 콘솔의 수신점을 깨운다."],
+        syncFragment: ["동기화 순서표 조각", "모래시계는 과거, 시계는 현재, 문은 미래를 뜻한다."],
+      };
+
+      const ANSWERS = {
+        clockPuzzle: "4912",
+        constellationPuzzle: "8361",
+        cassettePuzzle: "3142",
+        caesarPuzzle: "572",
+        tokenOrder: ["past", "present", "future"],
+        researcherPuzzle: "6429",
+        lightOrder: ["hourglass", "clock", "door"],
+        finalCode: "240719",
+      };
+
+      const PUZZLES = {
+        clockPuzzle: {
+          title: "문제 1. 멈춘 시계",
+          hints: [
+            "메모에 적힌 순서를 먼저 보세요.",
+            "시계의 시각 전체가 아니라 분침 위치만 봐야 합니다.",
+            "접수 → 관측 → 보관 → 통제 순서로 분침 숫자를 읽으세요.",
+          ],
+        },
+        constellationPuzzle: {
+          title: "문제 2. 별자리 UV 퍼즐",
+          hints: [
+            "UV 손전등은 벽의 별자리 지도에 사용합니다.",
+            "설명서의 표현은 별자리 이름을 뜻합니다.",
+            "용자리, 까마귀자리, 거문고자리, 북극성 순서로 숫자를 읽으세요.",
+          ],
+        },
+        cassettePuzzle: {
+          title: "문제 3. 카세트 소리 퍼즐",
+          hints: [
+            "소리의 높낮이보다 개수를 세어보세요.",
+            "정적이 숫자를 나누는 기준입니다.",
+            "3개, 1개, 4개, 2개입니다.",
+          ],
+        },
+        caesarPuzzle: {
+          title: "문제 4. 시저 암호 퍼즐",
+          hints: [
+            "암호 휠의 '3칸 되돌려라'가 핵심입니다.",
+            "O를 세 칸 뒤로 돌리면 L이 됩니다.",
+            "문장은 LOCK FIVE SEVEN TWO로 해독됩니다.",
+          ],
+        },
+        tokenOrderPuzzle: {
+          title: "문제 5. 시간 토큰 정렬",
+          hints: [
+            "토큰 이름 자체가 순서입니다.",
+            "시간은 과거에서 현재, 현재에서 미래로 흐릅니다.",
+            "과거 → 현재 → 미래 순서로 꽂으세요.",
+          ],
+        },
+        researcherPuzzle: {
+          title: "문제 6. 연구원 출입 기록",
+          hints: [
+            "민서와 하린은 붙어 있습니다.",
+            "하린 뒤에는 라온, 라온 뒤에는 지후가 와야 합니다.",
+            "순서는 민서 → 하린 → 라온 → 지후입니다.",
+          ],
+        },
+        lightPuzzle: {
+          title: "문제 7. 빛 반사 장치",
+          hints: [
+            "거울은 단순 장식이 아니라 빛의 방향을 바꾸는 장치입니다.",
+            "모래시계, 시계, 문 순서로 빛을 보내야 합니다.",
+            "과거, 현재, 미래 토큰의 뒷면 숫자를 이어 붙이세요.",
+          ],
+        },
+        finalPuzzle: {
+          title: "문제 8. 최종 탈출 코드",
+          hints: [
+            "문제 7에서 나타난 수신점 문구를 확인하세요.",
+            "토큰 뒷면 숫자를 시간 순서대로 이어야 합니다.",
+            "과거 24, 현재 07, 미래 19를 붙이면 됩니다.",
+          ],
+        },
+      };
+
+      const ROOM_OBJECTS = [
+        ["wallClocks", "벽시계", "네 개의 멈춘 시계"],
+        ["desk", "책상", "근무 동선 메모"],
+        ["drawer", "서랍", "4자리 잠금", "clockPuzzle"],
+        ["starMap", "별자리 지도", "UV 숫자가 숨은 지도"],
+        ["cassettePlayer", "카세트 플레이어", "정적이 섞인 현재 기록"],
+        ["cipherStation", "암호 해독대", "미래 문서와 해독 휠"],
+        ["pastBox", "과거 보관함", "4자리 잠금", "constellationPuzzle"],
+        ["presentBox", "현재 보관함", "4자리 잠금", "cassettePuzzle"],
+        ["futureBox", "미래 보관함", "3자리 잠금", "caesarPuzzle"],
+        ["timePanel", "중앙 시간 패널", "세 토큰 슬롯", "tokenOrderPuzzle"],
+        ["researcherLog", "연구원 출입 기록", "장비 캐비닛 단서"],
+        ["equipmentCabinet", "장비 캐비닛", "4자리 잠금", "researcherPuzzle"],
+        ["lightReflector", "빛 반사 장치", "세 개의 반사 대상", "lightPuzzle"],
+        ["finalConsole", "최종 콘솔", "6자리 탈출 코드", "finalPuzzle"],
+      ];
+
+      let selectedObject = "wallClocks";
+      let selectedItem = "";
+      let state = loadState();
+
+      function initialState() {
+        return {
+          started: false,
+          ended: false,
+          escaped: false,
+          remainingSeconds: INITIAL_SECONDS,
+          message: "시간 균열 감지. 60분 후 모든 출입구가 봉쇄됩니다.",
+          unlocked: {
+            deskDrawer: false,
+            pastBox: false,
+            presentBox: false,
+            futureBox: false,
+            timePanel: false,
+            equipmentCabinet: false,
+            finalConsole: false,
+          },
+          inventory: [],
+          solvedPuzzles: {
+            clockPuzzle: false,
+            constellationPuzzle: false,
+            cassettePuzzle: false,
+            caesarPuzzle: false,
+            tokenOrderPuzzle: false,
+            researcherPuzzle: false,
+            lightPuzzle: false,
+            finalPuzzle: false,
+          },
+          hintCounts: {
+            clockPuzzle: 0,
+            constellationPuzzle: 0,
+            cassettePuzzle: 0,
+            caesarPuzzle: 0,
+            tokenOrderPuzzle: 0,
+            researcherPuzzle: 0,
+            lightPuzzle: 0,
+            finalPuzzle: 0,
+          },
+        };
+      }
+
+      function loadState() {
+        try {
+          return { ...initialState(), ...JSON.parse(localStorage.getItem(STORAGE_KEY)) };
+        } catch {
+          return initialState();
+        }
+      }
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function setMessage(message) {
+        state.message = message;
+      }
+
+      function hasItems(items) {
+        return items.every((item) => state.inventory.includes(item));
+      }
+
+      function addItems(items) {
+        const gained = [];
+        items.forEach((item) => {
+          if (!state.inventory.includes(item)) {
+            state.inventory.push(item);
+            gained.push(ITEMS[item][0]);
+          }
+        });
+        return gained;
+      }
+
+      function startGame() {
+        state = initialState();
+        state.started = true;
+        state.message =
+          "시간 균열 감지. 60분 후 모든 출입구가 봉쇄됩니다. 과거, 현재, 미래의 기록을 동기화하십시오.";
+        selectedObject = "wallClocks";
+        selectedItem = "";
+        saveState();
+        render();
+      }
+
+      function resetGame() {
+        localStorage.removeItem(STORAGE_KEY);
+        state = initialState();
+        selectedObject = "wallClocks";
+        selectedItem = "";
+        render();
+      }
+
+      function solveCode(puzzle, value) {
+        if (state.ended || state.solvedPuzzles[puzzle]) return;
+
+        if (puzzle === "clockPuzzle") {
+          if (value !== ANSWERS.clockPuzzle) return wrong();
+          const gained = addItems([
+            "uvFlashlight",
+            "cassetteTape",
+            "cipherWheel",
+            "cipherText",
+            "constellationManual",
+          ]);
+          state.unlocked.deskDrawer = true;
+          state.solvedPuzzles.clockPuzzle = true;
+          setMessage("잠금이 해제되었다. 아이템을 획득했다: " + gained.join(", "));
+        }
+
+        if (puzzle === "constellationPuzzle") {
+          if (!hasItems(["uvFlashlight", "constellationManual"])) return unavailable();
+          if (value !== ANSWERS.constellationPuzzle) return wrong();
+          const gained = addItems(["pastToken"]);
+          state.unlocked.pastBox = true;
+          state.solvedPuzzles.constellationPuzzle = true;
+          setMessage("과거 보관함이 열렸다. 아이템을 획득했다: " + gained.join(", "));
+        }
+
+        if (puzzle === "cassettePuzzle") {
+          if (!hasItems(["cassetteTape"])) return unavailable();
+          if (value !== ANSWERS.cassettePuzzle) return wrong();
+          const gained = addItems(["presentToken"]);
+          state.unlocked.presentBox = true;
+          state.solvedPuzzles.cassettePuzzle = true;
+          setMessage("현재 보관함이 열렸다. 아이템을 획득했다: " + gained.join(", "));
+        }
+
+        if (puzzle === "caesarPuzzle") {
+          if (!hasItems(["cipherText", "cipherWheel"])) return unavailable();
+          if (value !== ANSWERS.caesarPuzzle) return wrong();
+          const gained = addItems(["futureToken"]);
+          state.unlocked.futureBox = true;
+          state.solvedPuzzles.caesarPuzzle = true;
+          setMessage("미래 보관함이 열렸다. 아이템을 획득했다: " + gained.join(", "));
+        }
+
+        if (puzzle === "researcherPuzzle") {
+          if (!hasItems(["researcherLog"])) return unavailable();
+          if (value !== ANSWERS.researcherPuzzle) return wrong();
+          const gained = addItems(["mirrors", "lightDevice", "syncFragment"]);
+          state.unlocked.equipmentCabinet = true;
+          state.solvedPuzzles.researcherPuzzle = true;
+          setMessage("장비 캐비닛이 열렸다. 아이템을 획득했다: " + gained.join(", "));
+        }
+
+        if (puzzle === "finalPuzzle") {
+          if (!state.unlocked.finalConsole) {
+            setMessage("최종 콘솔은 아직 활성화되지 않았다.");
+            return finishTurn();
+          }
+          if (value !== ANSWERS.finalCode) return wrong();
+          state.ended = true;
+          state.escaped = true;
+          state.solvedPuzzles.finalPuzzle = true;
+          setMessage("시간 동기화 완료. 봉쇄가 해제되었습니다.");
+        }
+
+        finishTurn();
+      }
+
+      function solveTokenOrder(order) {
+        if (!hasItems(["pastToken", "presentToken", "futureToken"])) {
+          setMessage("세 토큰을 모두 찾아야 한다.");
+        } else if (order.join("|") !== ANSWERS.tokenOrder.join("|")) {
+          return wrong();
+        } else {
+          const gained = addItems(["researcherLog"]);
+          state.unlocked.timePanel = true;
+          state.solvedPuzzles.tokenOrderPuzzle = true;
+          setMessage("중앙 시간 패널이 열렸다. 아이템을 획득했다: " + gained.join(", "));
+        }
+        finishTurn();
+      }
+
+      function solveLightOrder(order) {
+        if (!hasItems(["mirrors", "lightDevice", "syncFragment"])) {
+          setMessage("반사 장치를 조정할 장비가 부족하다.");
+        } else if (order.join("|") !== ANSWERS.lightOrder.join("|")) {
+          return wrong();
+        } else {
+          state.unlocked.finalConsole = true;
+          state.solvedPuzzles.lightPuzzle = true;
+          setMessage("최종 수신점이 켜졌다. 토큰의 뒷면 숫자를 시간 순서대로 이어라.");
+        }
+        finishTurn();
+      }
+
+      function revealHint(puzzle) {
+        state.hintCounts[puzzle] = Math.min(3, state.hintCounts[puzzle] + 1);
+        setMessage("힌트가 공개됐다: " + PUZZLES[puzzle].hints[state.hintCounts[puzzle] - 1]);
+        finishTurn();
+      }
+
+      function wrong() {
+        setMessage("잠금 장치가 반응하지 않는다.");
+        finishTurn();
+      }
+
+      function unavailable() {
+        setMessage("아직 사용할 수 없는 장치다.");
+        finishTurn();
+      }
+
+      function finishTurn() {
+        saveState();
+        render();
+      }
+
+      function getObjectStatus(id) {
+        if (id === "drawer") return state.unlocked.deskDrawer ? "해제" : "잠김";
+        if (id === "pastBox") return state.unlocked.pastBox ? "해제" : "잠김";
+        if (id === "presentBox") return state.unlocked.presentBox ? "해제" : "잠김";
+        if (id === "futureBox") return state.unlocked.futureBox ? "해제" : "잠김";
+        if (id === "timePanel") return state.unlocked.timePanel ? "동기화" : "대기";
+        if (id === "equipmentCabinet") return state.unlocked.equipmentCabinet ? "해제" : "잠김";
+        if (id === "lightReflector") return state.solvedPuzzles.lightPuzzle ? "정렬" : "대기";
+        if (id === "finalConsole") return state.unlocked.finalConsole ? "활성" : "잠금";
+        return "조사";
+      }
+
+      function timerHtml() {
+        const minutes = String(Math.floor(state.remainingSeconds / 60)).padStart(2, "0");
+        const seconds = String(state.remainingSeconds % 60).padStart(2, "0");
+        return `<div class="timer" aria-label="남은 시간"><span class="timerLabel">LOCKDOWN</span><strong>${minutes}:${seconds}</strong></div>`;
+      }
+
+      function updateTimerText() {
+        const minutes = String(Math.floor(state.remainingSeconds / 60)).padStart(2, "0");
+        const seconds = String(state.remainingSeconds % 60).padStart(2, "0");
+        document.querySelectorAll(".timer strong").forEach((timer) => {
+          timer.textContent = `${minutes}:${seconds}`;
+        });
+      }
+
+      function renderStart() {
+        return `
+          <main class="startScreen">
+            <section class="startHero">
+              <p class="eyebrow">Temporal Control Bureau</p>
+              <h1>시간관리국: 23시 59분의 문</h1>
+              <p class="storyText">시간 균열 감지. 60분 후 모든 출입구가 봉쇄됩니다. 과거, 현재, 미래의 기록을 동기화하십시오.</p>
+              <button class="primaryButton" data-action="start" type="button">게임 시작</button>
+            </section>
+          </main>`;
+      }
+
+      function renderEnd() {
+        return `
+          <main class="endScreen">
+            <section class="endPanel">
+              ${timerHtml()}
+              <p class="eyebrow">${state.escaped ? "Escape Complete" : "Lockdown"}</p>
+              <h1>${state.escaped ? "봉쇄가 해제되었습니다" : "시간이 닫혔습니다"}</h1>
+              <p class="storyText">${state.escaped ? "시간 동기화 완료. 봉쇄가 해제되었습니다." : "시간 초과. 모든 출입구가 봉쇄되었습니다."}</p>
+              <button class="primaryButton" data-action="reset" type="button">처음부터 다시 시작</button>
+            </section>
+          </main>`;
+      }
+
+      function renderGame() {
+        return `
+          <main class="gameShell">
+            <header class="topBar">
+              <div>
+                <p class="eyebrow">Temporal Control Bureau</p>
+                <h1>시간관리국: 23시 59분의 문</h1>
+              </div>
+              ${timerHtml()}
+              <button class="ghostButton" data-action="reset" type="button">처음부터 다시 시작</button>
+            </header>
+            <div class="messageBar" role="status">${state.message}</div>
+            <div class="gameGrid">
+              ${renderRoom()}
+              ${renderPuzzlePanel()}
+              ${renderInventory()}
+            </div>
+          </main>`;
+      }
+
+      function renderRoom() {
+        const cards = ROOM_OBJECTS.map(([id, name, subtitle]) => `
+          <button class="objectCard ${selectedObject === id ? "active" : ""}" data-object="${id}" type="button">
+            <span class="objectName">${name}</span>
+            <span class="objectSubtitle">${subtitle}</span>
+            <span class="statusPill">${getObjectStatus(id)}</span>
+          </button>`).join("");
+        return `
+          <section class="roomPanel" aria-label="방 오브젝트">
+            <div class="panelHeader"><h2>연구실 탐색</h2><span>click targets</span></div>
+            <div class="objectGrid">${cards}</div>
+          </section>`;
+      }
+
+      function renderInventory() {
+        const items = state.inventory.length
+          ? state.inventory
+              .map(
+                (id) =>
+                  `<button class="inventoryItem ${selectedItem === id ? "active" : ""}" data-item="${id}" type="button">${ITEMS[id][0]}</button>`,
+              )
+              .join("")
+          : `<p class="muted">아직 획득한 아이템이 없습니다.</p>`;
+        return `
+          <section class="inventoryPanel" aria-label="인벤토리">
+            <div class="panelHeader"><h2>인벤토리</h2><span>${state.inventory.length} items</span></div>
+            <div class="inventoryGrid">${items}</div>
+            <p class="itemDescription">${selectedItem ? ITEMS[selectedItem][1] : "아이템을 선택하면 설명이 표시됩니다."}</p>
+          </section>`;
+      }
+
+      function renderPuzzlePanel() {
+        const object = ROOM_OBJECTS.find(([id]) => id === selectedObject);
+        const puzzle = object[3];
+        return `
+          <section class="puzzlePanel" aria-label="선택한 오브젝트">
+            <div class="panelHeader"><h2>${object[1]}</h2><span>${object[2]}</span></div>
+            <div class="detailsBox">${renderDetails(selectedObject)}</div>
+            ${selectedItem ? `<div class="selectedItemBox"><strong>${ITEMS[selectedItem][0]}</strong><p>${ITEMS[selectedItem][1]}</p></div>` : ""}
+            ${renderAnswerBox(puzzle)}
+            ${renderHintBox(puzzle)}
+          </section>`;
+      }
+
+      function renderDetails(id) {
+        if (id === "wallClocks") {
+          return `<h3>벽시계 4개</h3><table><tbody><tr><th>접수</th><td>7:20</td></tr><tr><th>보관</th><td>11:05</td></tr><tr><th>관측</th><td>3:45</td></tr><tr><th>통제</th><td>9:10</td></tr></tbody></table>`;
+        }
+        if (id === "desk") {
+          return `<h3>책상 위 메모</h3><p>"비상시에는 오늘의 근무 동선을 따르라. 접수 → 관측 → 보관 → 통제. 단, 시간은 믿지 말고 분침이 가리키는 숫자만 믿어라."</p>`;
+        }
+        if (id === "drawer") return `<p>책상 서랍에는 낡은 4자리 잠금 장치가 달려 있다.</p>`;
+        if (id === "starMap") {
+          return hasItems(["uvFlashlight", "constellationManual"])
+            ? `<h3>별자리 지도</h3><p>UV 손전등 아래에서 숨겨진 숫자가 떠오른다.</p><table><tbody><tr><th>용자리</th><td>8</td></tr><tr><th>까마귀자리</th><td>3</td></tr><tr><th>거문고자리</th><td>6</td></tr><tr><th>북극성</th><td>1</td></tr></tbody></table><p>설명서: 긴 꼬리 → 검은 날개 → 노래하는 현 → 항상 북쪽</p>`
+            : `<p>별자리 지도 표면은 평범해 보인다. 다른 도구가 필요하다.</p>`;
+        }
+        if (id === "cassettePlayer") {
+          return state.inventory.includes("cassetteTape")
+            ? `<h3>카세트 플레이어</h3><p>"현재 기록은 소리로 남겨졌다. 긴 정적은 다음 칸을 뜻한다."</p><div class="signalPattern"><span>삐 삐 삐</span><b>[정적]</b><span>삐</span><b>[정적]</b><span>삐 삐 삐 삐</span><b>[정적]</b><span>삐 삐</span></div>`
+            : `<p>테이프가 없어 플레이어가 헛돌고 있다.</p>`;
+        }
+        if (id === "cipherStation") {
+          return hasItems(["cipherText", "cipherWheel"])
+            ? `<h3>암호 해독대</h3><p class="cipherText">ORFN ILYH VHYHQ WZR</p><p>"미래 문서는 세 칸 앞서 기록된다. 현재로 돌리려면 3칸 되돌려라."</p>`
+            : `<p>암호문과 해독 휠을 모두 찾아야 해독을 시작할 수 있다.</p>`;
+        }
+        if (id === "pastBox") return `<p>과거 보관함은 별자리 기록으로 잠겨 있다.</p>`;
+        if (id === "presentBox") return `<p>현재 보관함은 소리 기록으로 잠겨 있다.</p>`;
+        if (id === "futureBox") return `<p>미래 보관함은 암호 문서로 잠겨 있다.</p>`;
+        if (id === "timePanel") return `<h3>중앙 시간 패널</h3><p>[     ] → [     ] → [     ]</p><p>"시간은 거꾸로 흐르지 않는다."</p>`;
+        if (id === "researcherLog") {
+          return state.inventory.includes("researcherLog")
+            ? `<h3>연구원 출입 기록</h3><table><tbody><tr><th>민서</th><td>6</td></tr><tr><th>하린</th><td>4</td></tr><tr><th>라온</th><td>2</td></tr><tr><th>지후</th><td>9</td></tr></tbody></table><ul class="clueList"><li>하린은 라온보다 먼저 들어왔다.</li><li>하린은 첫 번째가 아니다.</li><li>민서는 하린 바로 앞에 들어왔다.</li><li>지후는 라온보다 늦게 들어왔다.</li><li>라온은 네 번째가 아니다.</li></ul>`
+            : `<p>아직 출입 기록 파일이 없다.</p>`;
+        }
+        if (id === "equipmentCabinet") return `<p>장비 캐비닛의 키패드는 출입 순서를 요구한다.</p>`;
+        if (id === "lightReflector") {
+          return hasItems(["mirrors", "lightDevice", "syncFragment"])
+            ? `<h3>빛 반사 장치</h3><p>동기화 순서표 조각: "빛은 기록을 깨운다. 모래시계는 과거, 시계는 현재, 문은 미래를 뜻한다."</p>`
+            : `<p>거울, 빛 장치, 순서표 조각을 모두 찾아야 반사 장치를 조정할 수 있다.</p>`;
+        }
+        if (id === "finalConsole") {
+          return `<h3>최종 콘솔</h3><p>"시간 조각을 하나로 잇는 자만이 문을 통과한다."</p>${state.unlocked.finalConsole ? `<p class="successText">수신점: 토큰의 뒷면 숫자를 시간 순서대로 이어라.</p>` : `<p>콘솔은 아직 비활성 상태다.</p>`}`;
+        }
+        return `<p>장치 표면의 네온 라인이 약하게 점멸한다.</p>`;
+      }
+
+      function renderAnswerBox(puzzle) {
+        if (!puzzle) return "";
+        if (puzzle === "tokenOrderPuzzle") {
+          return `
+            <div class="answerBox">
+              <label>${PUZZLES[puzzle].title}</label>
+              <div class="slotRow">${[1, 2, 3]
+                .map(
+                  (num) =>
+                    `<select data-token-slot="${num}" ${state.solvedPuzzles[puzzle] ? "disabled" : ""}><option value="">선택</option><option value="past">과거 토큰</option><option value="present">현재 토큰</option><option value="future">미래 토큰</option></select>`,
+                )
+                .join("")}</div>
+              <button data-action="tokenOrder" ${state.solvedPuzzles[puzzle] ? "disabled" : ""} type="button">동기화</button>
+            </div>`;
+        }
+        if (puzzle === "lightPuzzle") {
+          return `
+            <div class="answerBox">
+              <label>${PUZZLES[puzzle].title}</label>
+              <div class="slotRow">${[1, 2, 3]
+                .map(
+                  (num) =>
+                    `<select data-light-slot="${num}" ${state.solvedPuzzles[puzzle] ? "disabled" : ""}><option value="">선택</option><option value="hourglass">모래시계</option><option value="clock">시계</option><option value="door">문</option></select>`,
+                )
+                .join("")}</div>
+              <button data-action="lightOrder" ${state.solvedPuzzles[puzzle] ? "disabled" : ""} type="button">빛 보내기</button>
+            </div>`;
+        }
+        return `
+          <form class="answerBox" data-code-puzzle="${puzzle}">
+            <label>${PUZZLES[puzzle].title}</label>
+            <div class="inputRow">
+              <input placeholder="코드 입력" inputmode="numeric" ${state.solvedPuzzles[puzzle] ? "disabled" : ""} />
+              <button ${state.solvedPuzzles[puzzle] ? "disabled" : ""} type="submit">입력</button>
+            </div>
+          </form>`;
+      }
+
+      function renderHintBox(puzzle) {
+        if (!puzzle) {
+          return `<div class="hintBox"><p>퍼즐 오브젝트를 선택하면 힌트를 사용할 수 있습니다.</p></div>`;
+        }
+        const count = state.hintCounts[puzzle];
+        const hints = PUZZLES[puzzle].hints
+          .slice(0, count)
+          .map((hint) => `<li>${hint}</li>`)
+          .join("");
+        return `
+          <div class="hintBox">
+            <div class="panelHeader"><h3>힌트</h3><button data-hint="${puzzle}" ${count >= 3 ? "disabled" : ""} type="button">${count >= 3 ? "모두 공개됨" : `힌트 ${count + 1}`}</button></div>
+            ${hints ? `<ol class="hintList">${hints}</ol>` : `<p>필요하면 단계별 힌트를 열 수 있습니다.</p>`}
+          </div>`;
+      }
+
+      function bindEvents() {
+        document.querySelectorAll("[data-action='start']").forEach((button) => button.addEventListener("click", startGame));
+        document.querySelectorAll("[data-action='reset']").forEach((button) => button.addEventListener("click", resetGame));
+        document.querySelectorAll("[data-object]").forEach((button) =>
+          button.addEventListener("click", () => {
+            selectedObject = button.dataset.object;
+            render();
+          }),
+        );
+        document.querySelectorAll("[data-item]").forEach((button) =>
+          button.addEventListener("click", () => {
+            selectedItem = button.dataset.item;
+            render();
+          }),
+        );
+        document.querySelectorAll("[data-code-puzzle]").forEach((form) =>
+          form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            solveCode(form.dataset.codePuzzle, form.querySelector("input").value.trim());
+          }),
+        );
+        document.querySelectorAll("[data-hint]").forEach((button) =>
+          button.addEventListener("click", () => revealHint(button.dataset.hint)),
+        );
+        const tokenButton = document.querySelector("[data-action='tokenOrder']");
+        if (tokenButton) {
+          tokenButton.addEventListener("click", () =>
+            solveTokenOrder([...document.querySelectorAll("[data-token-slot]")].map((slot) => slot.value)),
+          );
+        }
+        const lightButton = document.querySelector("[data-action='lightOrder']");
+        if (lightButton) {
+          lightButton.addEventListener("click", () =>
+            solveLightOrder([...document.querySelectorAll("[data-light-slot]")].map((slot) => slot.value)),
+          );
+        }
+      }
+
+      function render() {
+        document.getElementById("root").innerHTML = !state.started
+          ? renderStart()
+          : state.ended
+            ? renderEnd()
+            : renderGame();
+        bindEvents();
+      }
+
+      setInterval(() => {
+        if (!state.started || state.ended) return;
+        if (state.remainingSeconds <= 1) {
+          state.remainingSeconds = 0;
+          state.ended = true;
+          state.escaped = false;
+          state.message = "시간 초과. 모든 출입구가 봉쇄되었습니다.";
+          saveState();
+          render();
+        } else {
+          state.remainingSeconds -= 1;
+          saveState();
+          updateTimerText();
+        }
+      }, 1000);
+
+      render();
+    </script>
+  </body>
+</html>
